@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getTrack } from './soundcloud-api/soundcloud';
 
 //components
 import { Imagen } from './components/Imagen';
-import { AudioPlayer } from './components/AuidoPlayer';
 import { Progress } from './components/Progress';
 import { Search } from './components/Search';
 import { Footer } from './components/Footer';
@@ -12,53 +12,51 @@ import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled, FaPlay, FaPause } fro
 
 //styles
 import './App.css'
-import { getTrack } from './soundcloud-api/soundcloud';
 
 function App() {
 
+  const audioPlayer = useRef();
   const [music, setMusic] = useState({});
-  const [playPause, setPlayPause] = useState(false)
-  // const [musicPlay, setMusicPlay] = useState(0);
-  // const [progress, setProgres] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [progress, setProgres] = useState(0);
+
   useEffect(() => {
-    const getMusic = getTrack('https://soundcloud.com/igstudiosmx/gintama-promesa-a-la-luna-version-completa')
+    const getMusic = getTrack('https://soundcloud.com/igstudiosmx/gintama-promesa-a-la-luna-version-completa');
     getMusic.then((res) => {
-      setMusic(res.data.music)
+      setMusic(res.data.music);
     })
+
+    // const volumePlayer = audioPlayer?.current?.volume;
+    const duration = Math.floor(audioPlayer?.current?.duration);
+    const currentTime = Math.floor(audioPlayer?.current?.currentTime);
+    setDuration(duration);
+    setProgres(currentTime);
+
   }, [])
 
   const play = () => {
-    const audioPlay = document.getElementById('audio');
-    audioPlay.play()
-
-    setPlayPause(true);
-    currentTime()
+    audioPlayer.current.play();
+    setIsPlaying(true);
   }
 
   const pause = () => {
-    const audioPause = document.getElementById('audio');
-    audioPause.pause()
-
-    setPlayPause(false);
+    audioPlayer.current.pause();
+    setIsPlaying(false);
   }
 
-  // const currentTime = () =>{
-  //   const audio = document.getElementById('audio');
-  //   const currentTime = audio.currentTime();
-  //   const duration = audio.duration();
-  //   let porcetaje = (currentTime / duration) * 100
-  //   console({currentTime, duration, porcetaje})
-  //   setProgres(currentTime)
-  // }
+  const formatTime = (time) =>{
 
-  // const next = () => {
-  //   const countMusic = music.length
-  //   if(musicPlay < countMusic) setMusicPlay(musicPlay +1)
-  // }
+    if(time && !isNaN(time)) {
+      const minutes = Math.floor(time / 60) < 10 ? `0${Math.floor(time / 60)}` : Math.floor(time / 60);
+      const seconds = Math.floor(time % 60) < 10 ? `0${Math.floor(time % 60)}` : Math.floor(time % 60); 
 
-  // const prev = () => {
-  //   if(musicPlay > 0) setMusicPlay(musicPlay -1)
-  // }
+      return `${minutes}:${seconds}`
+    }
+
+    return '00:00';
+    
+  }
 
   return (
     <div className="App">
@@ -69,16 +67,16 @@ function App() {
 
           <div className=" mx-auto mt-10 card w-96 bg-base-100 shadow-xl">
             <div className="mx-auto mt-10">
-              <AudioPlayer musicUrl={music.download_url} />
+              <audio src={music.download_url} ref={audioPlayer} ></audio>
               <Imagen urlImgen={music.thumbnail} />
             </div>
             <div className="card-body items-center text-center">
               <h2 className="card-title">{music.title}</h2>
-              <p>01:45 - 03:15</p>
+              <p>{formatTime(progress)} - {formatTime(duration)}</p>
               <Progress valueProgress={45} />
               <div className="flex justify-center space-x-2 my-5">
                 <button className="btn btn-outline btn-primary" disabled><TbPlayerTrackPrevFilled /></button>
-                {playPause === false ?
+                {isPlaying === false ?
                   <button className="btn btn-outline btn-primary" onClick={play} ><FaPlay /></button>
                   : <button className="btn btn-outline btn-primary" onClick={pause} ><FaPause /></button>
                 }
