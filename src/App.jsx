@@ -6,6 +6,7 @@ import { Imagen } from './components/Imagen';
 import { Progress } from './components/Progress';
 import { Search } from './components/Search';
 import { Footer } from './components/Footer';
+import { Audios } from './components/Audio';
 
 //icons
 import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled, FaPlay, FaPause } from 'react-icons/all'
@@ -36,12 +37,12 @@ function App() {
   }, [])
 
   const play = () => {
-    audioPlayer.current.play();
+    audioPlayer.current.playMusic();
     setIsPlaying(true);
   }
 
   const pause = () => {
-    audioPlayer.current.pause();
+    audioPlayer.current.pauseMusic();
     setIsPlaying(false);
   }
 
@@ -67,7 +68,8 @@ function App() {
 
           <div className=" mx-auto mt-10 card w-96 bg-base-100 shadow-xl">
             <div className="mx-auto mt-10">
-              <audio src={music.download_url} ref={audioPlayer} ></audio>
+              {/* <audio src={music.download_url} ref={audioPlayer} ></audio> */}
+              <Audios ref={audioPlayer} soundsList={music}></Audios>
               <Imagen urlImgen={music.thumbnail} />
             </div>
             <div className="card-body items-center text-center">
@@ -77,8 +79,8 @@ function App() {
               <div className="flex justify-center space-x-2 my-5">
                 <button className="btn btn-outline btn-primary" disabled><TbPlayerTrackPrevFilled /></button>
                 {isPlaying === false ?
-                  <button className="btn btn-outline btn-primary" onClick={play} ><FaPlay /></button>
-                  : <button className="btn btn-outline btn-primary" onClick={pause} ><FaPause /></button>
+                  <button className="btn btn-outline btn-primary" onClick={ () => play() } ><FaPlay /></button>
+                  : <button className="btn btn-outline btn-primary" onClick={ () => pause() } ><FaPause /></button>
                 }
                 <button className="btn btn-outline btn-primary" disabled><TbPlayerTrackNextFilled /></button>
               </div>
