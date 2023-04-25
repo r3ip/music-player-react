@@ -26,9 +26,9 @@ function App() {
   useEffect(() => {
     setMusic(
       {
-        title: 'Stream Gintama - Promesa a la Luna [Versión Completa]',
-        thumbnail: './assets/images/cover01.jpg',
-        download_url: './assets/music/Promesa-a-la-Luna.mp3'
+        title: 'Gintama - Promesa a la Luna [Versión Completa]',
+        thumbnail: 'https://raw.githubusercontent.com/r3ip/music-player-react/static-page/src/assets/images/cover01.jpg',
+        download_url: 'https://raw.githubusercontent.com/r3ip/music-player-react/static-page/src/assets/music/Promesa-a-la-Luna.mp3'
       }
     );
 
