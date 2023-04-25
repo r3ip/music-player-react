@@ -24,10 +24,14 @@ function App() {
   const [currentTime, setCurrentTime] = useState('00 : 00');
 
   useEffect(() => {
-    const getMusic = getTrack('https://soundcloud.com/igstudiosmx/gintama-promesa-a-la-luna-version-completa');
-    getMusic.then((res) => {
-      setMusic(res.data.music);
-    })
+    setMusic(
+      {
+        title: 'Stream Gintama - Promesa a la Luna [Versión Completa]',
+        thumbnail: './assets/images/cover01.jpg',
+        download_url: './assets/music/Promesa-a-la-Luna.mp3'
+      }
+    );
+
   }, [])
 
   const play = () => {
@@ -68,8 +72,6 @@ function App() {
 
   return (
     <div className="App">
-      <Search />
-
       {
         music.download_url !== undefined ?
 
