@@ -6,10 +6,9 @@ import { Imagen } from './components/Imagen';
 import { Progress } from './components/Progress';
 import { Search } from './components/Search';
 import { Footer } from './components/Footer';
-import { Audios } from './components/Audio';
 
 //icons
-import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled, FaPlay, FaPause } from 'react-icons/all'
+import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled, FaPlay, FaPause, IoMdVolumeHigh, BsFillVolumeMuteFill } from 'react-icons/all'
 
 //styles
 import './App.css'
@@ -19,44 +18,52 @@ function App() {
   const audioPlayer = useRef();
   const [music, setMusic] = useState({});
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
   const [progress, setProgres] = useState(0);
+  const [isMute, setIsMute] = useState(false);
+  const [duration, setDuration] = useState('00 : 00');
+  const [currentTime, setCurrentTime] = useState('00 : 00');
 
   useEffect(() => {
     const getMusic = getTrack('https://soundcloud.com/igstudiosmx/gintama-promesa-a-la-luna-version-completa');
     getMusic.then((res) => {
       setMusic(res.data.music);
     })
-
-    // const volumePlayer = audioPlayer?.current?.volume;
-    const duration = Math.floor(audioPlayer?.current?.duration);
-    const currentTime = Math.floor(audioPlayer?.current?.currentTime);
-    setDuration(duration);
-    setProgres(currentTime);
-
   }, [])
 
   const play = () => {
-    audioPlayer.current.playMusic();
+    audioPlayer.current.play();
     setIsPlaying(true);
   }
 
   const pause = () => {
-    audioPlayer.current.pauseMusic();
+    audioPlayer.current.pause();
     setIsPlaying(false);
   }
 
-  const formatTime = (time) =>{
-
-    if(time && !isNaN(time)) {
-      const minutes = Math.floor(time / 60) < 10 ? `0${Math.floor(time / 60)}` : Math.floor(time / 60);
-      const seconds = Math.floor(time % 60) < 10 ? `0${Math.floor(time % 60)}` : Math.floor(time % 60); 
-
-      return `${minutes}:${seconds}`
+  const volumenMute = (value) => {
+    if(value.target.checked === true) {
+      setIsMute(true)
+    }else {
+      //mute
+      setIsMute(false)
     }
+  }
 
-    return '00:00';
+  const timeUpdate = () => {
+    let duration = audioPlayer.current.duration
+    let minutes = Math.floor(duration / 60);
+    let seconds = Math.floor(duration % 60);
+    let durationTime = `${minutes < 10 ? `0${minutes}` : minutes} : ${seconds < 10 ? `0${seconds}` : seconds}`;
+    if( durationTime === 'NaN : NaN') setDuration('00 : 00');
+    else setDuration(durationTime);
     
+    let currentMin = Math.floor(audioPlayer.current.currentTime / 60);
+    let currentSec = Math.floor(audioPlayer.current.currentTime % 60);
+    let currentTime = `${currentMin < 10 ? `0${currentMin}` : currentMin} : ${currentSec < 10 ? `0${currentSec}` : currentSec}`;
+    setCurrentTime(currentTime);
+
+    const progress = parseInt((audioPlayer.current.currentTime / audioPlayer.current.duration) * 100);
+    setProgres(isNaN(progress) ? 0 : progress)
   }
 
   return (
@@ -68,14 +75,20 @@ function App() {
 
           <div className=" mx-auto mt-10 card w-96 bg-base-100 shadow-xl">
             <div className="mx-auto mt-10">
-              {/* <audio src={music.download_url} ref={audioPlayer} ></audio> */}
-              <Audios ref={audioPlayer} soundsList={music}></Audios>
-              <Imagen urlImgen={music.thumbnail} />
+              <audio src={music.download_url} ref={ audioPlayer } muted={ isMute } onTimeUpdate={ timeUpdate } ></audio>
+              <Imagen urlImagen={music.thumbnail} urlDownload={music.download_url}/>
             </div>
             <div className="card-body items-center text-center">
               <h2 className="card-title">{music.title}</h2>
-              <p>{formatTime(progress)} - {formatTime(duration)}</p>
-              <Progress valueProgress={45} />
+              <div className="flex justify-center space-x-2 my-5">
+                <p>{ currentTime } - { duration }</p>
+                <label className="swap swap-rotate">
+                <input type="checkbox" onChange={ volumenMute }/>
+                  <BsFillVolumeMuteFill className="swap-on fill-current text-secondary-focus w-6 h-6"/>
+                  <IoMdVolumeHigh  BsFillVolumeMuteFill className="swap-off fill-current text-primary w-6 h-6"/>
+                </label>
+              </div>
+              <Progress valueProgress={ progress } />
               <div className="flex justify-center space-x-2 my-5">
                 <button className="btn btn-outline btn-primary" disabled><TbPlayerTrackPrevFilled /></button>
                 {isPlaying === false ?
